@@ -1,0 +1,422 @@
+library(tidyverse)
+library(bigrquery)
+
+
+## focus on "lifestyle survey"
+dat <- dataset_83464725_survey_df
+dat <- dat %>%
+filter(survey=="Lifestyle")
+head(dat, 5)
+unique(dat$question)
+
+## filter all the questions related to smoking
+dat <- dat %>%
+filter(question=="Smoking: Serious Quit Attempt" | question=="Smoking: Daily Smoke Starting Age"|
+       question=="Smoking: Average Daily Cigarette Number"|question=="Electronic Smoking: Electric Smoke Frequency"|
+       question=="Smoking: Smoke Frequency"|question=="Attempt Quit Smoking: Completely Quit Age"|
+       question=="Smoking: Current Daily Cigarette Number"|question=="Smokeless Tobacco: Smokeless Tobacco Frequency"|
+       question=="Smoking: Number Of Years"|question=="Smokeless Tobacco: Smokeless Tobacco Participant"|
+      question=="Smoking: 100 Cigs Lifetime"|question=="Electronic Smoking: Electric Smoke Participant"|
+       question=="Cigar Smoking: Current Cigar Frequency"|question=="Hookah Smoking: Current Hookah Frequency"|
+      question=="Hookah Smoking: Hookah Smoke Participant"|question=="Cigar Smoking: Cigar Smoke Participant")
+
+## check missing values
+dat <- dat %>%
+select(person_id,survey,question,answer)
+head(dat,5)
+sum(is.na(dat$answer))
+
+## check the distribution of "Smoking: Serious Quit Attempt"
+dat_sm_quit <- dat %>%
+filter(question=="Smoking: Serious Quit Attempt")
+unique(dat_sm_quit$answer)
+
+dat_sm_quit$answer_index <-1
+dat_sm_quit <- dat_sm_quit %>%
+  select(answer,answer_index) %>%
+  group_by(answer) %>%
+  count(answer_index) %>%
+  select(answer,n)
+head(dat_sm_quit)
+ggplot(dat_sm_quit,mapping = aes(x=answer,y=n))+
+  geom_bar(stat = "identity")+ 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+## check the distribution of "Smoking: Daily Smoke Starting Age"
+dat_sm_startage <- dat %>%
+filter(question=="Smoking: Daily Smoke Starting Age")
+
+dat_sm_startage$answer_index <-1
+dat_sm_startage <- dat_sm_startage %>%
+  select(answer,answer_index) %>%
+  group_by(answer) %>%
+  count(answer_index) %>%
+  select(answer,n)
+dat_sm_startage$answer<-order(dat_sm_startage$answer,decreasing = FALSE)
+head(dat_sm_startage)
+ggplot(dat_sm_startage,mapping = aes(x=answer,y=n))+
+  geom_bar(stat = "identity")
+  
+## check the distribution of "Smoking: Average Daily Cigarette Number"
+dat_ave_cig <- dat %>%
+filter(question=="Smoking: Average Daily Cigarette Number")
+
+
+dat_ave_cig$answer_index <-1
+dat_ave_cig <- dat_ave_cig %>%
+  select(answer,answer_index) %>%
+  group_by(answer) %>%
+  count(answer_index) %>%
+  select(answer,n)
+dat_ave_cig$answer<-order((dat_ave_cig$answer),decreasing=FALSE)
+head(dat_ave_cig)
+ggplot(dat_ave_cig,mapping = aes(x=answer,y=n))+
+  geom_bar(stat = "identity")
+  
+## check the distribution of "Electronic Smoking: Electric Smoke Frequency"
+dat_e_cig_freq <- dat %>%
+filter(question=="Electronic Smoking: Electric Smoke Frequency")
+unique(dat_e_cig_freq$answer)
+
+dat_e_cig_freq$answer_index <-1
+dat_e_cig_freq <- dat_e_cig_freq %>%
+  select(answer,answer_index) %>%
+  group_by(answer) %>%
+  count(answer_index) %>%
+  select(answer,n)
+head(dat_e_cig_freq)
+ggplot(dat_e_cig_freq,mapping = aes(x=answer,y=n))+
+  geom_bar(stat = "identity")+ 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+## check the distribution of "Smoking: Smoke Frequency"
+dat_cig_freq <- dat %>%
+filter(question=="Smoking: Smoke Frequency")
+unique(dat_cig_freq$answer)
+
+dat_cig_freq$answer_index <-1
+dat_cig_freq <- dat_cig_freq %>%
+  select(answer,answer_index) %>%
+  group_by(answer) %>%
+  count(answer_index) %>%
+  select(answer,n)
+head(dat_cig_freq)
+ggplot(dat_cig_freq,mapping = aes(x=answer,y=n))+
+  geom_bar(stat = "identity")+ 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+## check the distribution of "Smoking: Current Daily Cigarette Number"
+dat_current_cig_num <- dat %>%
+filter(question=="Smoking: Current Daily Cigarette Number")
+
+dat_current_cig_num$answer_index <-1
+dat_current_cig_num <- dat_current_cig_num %>%
+  select(answer,answer_index) %>%
+  group_by(answer) %>%
+  count(answer_index) %>%
+  select(answer,n)
+dat_current_cig_num$answer <- order(dat_current_cig_num$answer,decreasing=FALSE)
+head(dat_current_cig_num)
+ggplot(dat_current_cig_num,mapping = aes(x=answer,y=n))+
+  geom_bar(stat = "identity")
+
+## check the distribution of "Smoking: Number Of Years"
+dat_smo_num_yrs <- dat %>%
+filter(question=="Smoking: Number Of Years")
+
+dat_smo_num_yrs$answer_index <-1
+dat_smo_num_yrs <- dat_smo_num_yrs %>%
+  select(answer,answer_index) %>%
+  group_by(answer) %>%
+  count(answer_index) %>%
+  select(answer,n)
+dat_smo_num_yrs$answer<-order(dat_smo_num_yrs$answer,decreasing=FALSE)
+head(dat_smo_num_yrs)
+ggplot(dat_smo_num_yrs,mapping = aes(x=answer,y=n))+
+  geom_bar(stat = "identity")
+  
+## check the distribution of "Smoking: 100 Cigs Lifetime"
+dat_100_cig <- dat %>%
+filter(question=="Smoking: 100 Cigs Lifetime")
+unique(dat_100_cig$answer)
+
+dat_100_cig$answer_index <-1
+dat_100_cig <- dat_100_cig %>%
+  select(answer,answer_index) %>%
+  group_by(answer) %>%
+  count(answer_index) %>%
+  select(answer,n)
+head(dat_100_cig)
+ggplot(dat_100_cig,mapping = aes(x=answer,y=n))+
+  geom_bar(stat = "identity")+ 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+## check the distribution of "Electronic Smoking: Electric Smoke Participant"
+dat_e_cig_part <- dat %>%
+filter(question=="Electronic Smoking: Electric Smoke Participant")
+unique(dat_e_cig_part$answer)
+
+dat_e_cig_part$answer_index <-1
+dat_e_cig_part <- dat_e_cig_part %>%
+  select(answer,answer_index) %>%
+  group_by(answer) %>%
+  count(answer_index) %>%
+  select(answer,n)
+head(dat_e_cig_part)
+ggplot(dat_e_cig_part,mapping = aes(x=answer,y=n))+
+  geom_bar(stat = "identity")+ 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+## check the distribution of "Attempt Quit Smoking: Completely Quit Age"
+dat_quit_age<- dat %>%
+filter(question=="Attempt Quit Smoking: Completely Quit Age")
+
+dat_quit_age$answer_index <-1
+dat_quit_age <- dat_quit_age %>%
+  select(answer,answer_index) %>%
+  group_by(answer) %>%
+  count(answer_index) %>%
+  select(answer,n)
+dat_quit_age$answer<-order(dat_quit_age$answer,decreasing=FALSE)
+head(dat_quit_age)
+ggplot(dat_quit_age,mapping = aes(x=answer,y=n))+
+  geom_bar(stat = "identity")
+
+
+
+library(readxl)
+library(stringr)
+library(dplyr)
+library(data.table)
+library(tidyr)
+library(stringr)
+install.packages("tableone")
+library(tableone)
+library(ggplot2)
+install.packages("ggpubr")
+library(ggpubr)
+install.packages("vtable")
+library(vtable)
+
+## Code for creating descriptive table
+myVars_baseline <- c("Smoking: Serious Quit Attempt" , "Smoking: Daily Smoke Starting Age",
+       "Smoking: Average Daily Cigarette Number","Electronic Smoking: Electric Smoke Frequency",
+       "Smoking: Smoke Frequency","Attempt Quit Smoking: Completely Quit Age",
+       "Smoking: Current Daily Cigarette Number","Smokeless Tobacco: Smokeless Tobacco Frequency",
+       "Smoking: Number Of Years","Smokeless Tobacco: Smokeless Tobacco Participant",
+      "Smoking: 100 Cigs Lifetime","Electronic Smoking: Electric Smoke Participant",
+       "Cigar Smoking: Current Cigar Frequency","Hookah Smoking: Current Hookah Frequency",
+      "Hookah Smoking: Hookah Smoke Participant","Cigar Smoking: Cigar Smoke Participant")
+
+myVars_cat <- c("Smoking: Serious Quit Attempt" , 
+       "Electronic Smoking: Electric Smoke Frequency",
+       "Smoking: Smoke Frequency",
+       "Smokeless Tobacco: Smokeless Tobacco Frequency",
+       "Smokeless Tobacco: Smokeless Tobacco Participant",
+      "Smoking: 100 Cigs Lifetime","Electronic Smoking: Electric Smoke Participant",
+       "Cigar Smoking: Current Cigar Frequency","Hookah Smoking: Current Hookah Frequency",
+      "Hookah Smoking: Hookah Smoke Participant","Cigar Smoking: Cigar Smoke Participant")
+      
+ ## Treat non-numeric data such as "PMI: Skip" in numeric variables as NA
+dat_table<- dat %>%
+pivot_wider(names_from=question,values_from=answer)
+
+dat_table$"Smoking: Daily Smoke Starting Age"[dat_table$"Smoking: Daily Smoke Starting Age"=="PMI: Dont Know"]<-NA
+dat_table$"Smoking: Daily Smoke Starting Age"[dat_table$"Smoking: Daily Smoke Starting Age"=="PMI: Prefer Not To Answer"]<-NA
+dat_table$"Smoking: Daily Smoke Starting Age"[dat_table$"Smoking: Daily Smoke Starting Age"=="PMI: Skip"]<-NA
+
+dat_table$"Smoking: Average Daily Cigarette Number"[dat_table$"Smoking: Average Daily Cigarette Number"=="PMI: Dont Know"]<-NA
+dat_table$"Smoking: Average Daily Cigarette Number"[dat_table$"Smoking: Average Daily Cigarette Number"=="PMI: Prefer Not To Answer"]<-NA
+dat_table$"Smoking: Average Daily Cigarette Number"[dat_table$"Smoking: Average Daily Cigarette Number"=="PMI: Skip"]<-NA
+
+dat_table$"Attempt Quit Smoking: Completely Quit Age"[dat_table$"Attempt Quit Smoking: Completely Quit Age"=="PMI: Dont Know"]<-NA
+dat_table$"Attempt Quit Smoking: Completely Quit Age"[dat_table$"Attempt Quit Smoking: Completely Quit Age"=="PMI: Prefer Not To Answer"]<-NA
+dat_table$"Attempt Quit Smoking: Completely Quit Age"[dat_table$"Attempt Quit Smoking: Completely Quit Age"=="PMI: Skip"]<-NA
+
+dat_table$"Smoking: Current Daily Cigarette Number"[dat_table$"Smoking: Current Daily Cigarette Number"=="PMI: Dont Know"]<-NA
+dat_table$"Smoking: Current Daily Cigarette Number"[dat_table$"Smoking: Current Daily Cigarette Number"=="PMI: Prefer Not To Answer"]<-NA
+dat_table$"Smoking: Current Daily Cigarette Number"[dat_table$"Smoking: Current Daily Cigarette Number"=="PMI: Skip"]<-NA
+
+dat_table$"Smoking: Number Of Years"[dat_table$"Smoking: Number Of Years"=="PMI: Dont Know"]<-NA
+dat_table$"Smoking: Number Of Years"[dat_table$"Smoking: Number Of Years"=="PMI: Prefer Not To Answer"]<-NA
+dat_table$"Smoking: Number Of Years"[dat_table$"Smoking: Number Of Years"=="PMI: Skip"]<-NA
+
+dat_table$"Smoking: Daily Smoke Starting Age" <- as.numeric(dat_table$"Smoking: Daily Smoke Starting Age")
+dat_table$"Smoking: Average Daily Cigarette Number" <- as.numeric(dat_table$"Smoking: Average Daily Cigarette Number")
+dat_table$"Attempt Quit Smoking: Completely Quit Age" <- as.numeric(dat_table$"Attempt Quit Smoking: Completely Quit Age")
+dat_table$"Smoking: Current Daily Cigarette Number" <- as.numeric(dat_table$"Smoking: Current Daily Cigarette Number")
+dat_table$"Smoking: Number Of Years" <- as.numeric(dat_table$"Smoking: Number Of Years")
+
+## Create Descriptive Table
+table1 <- CreateTableOne(vars = myVars_baseline, 
+                              data = dat_table, 
+                              includeNA = TRUE,
+                              factorVars = myVars_cat)
+table1
+
+## select demographic variables
+Demo_dat <- dataset_87296751_person_df
+Demo_dat <- Demo_dat %>% 
+            select("person_id", "gender", "date_of_birth", "race", "ethnicity", "sex_at_birth")
+head(Demo_dat)
+
+## create table to figure out the number of current smokers
+dat_cig_freq <- dat %>%
+filter(question=="Smoking: Smoke Frequency")
+table(dat_cig_freq$answer)
+
+## create table to figure out the number of female who are current smokers
+dat_woman_cig <- Demo_dat %>%
+filter(gender=="Female") %>%
+inner_join(dat_cig_freq,by="person_id")
+table(dat_woman_cig$gender,dat_woman_cig$answer)
+
+## create table to figure out the number of current e-cig smokers
+dat_e_cig_freq <- dat %>%
+filter(question=="Electronic Smoking: Electric Smoke Frequency")
+table(dat_e_cig_freq$answer)
+
+## create table to figure out the number of female who are current e-cig smokers
+dat_woman_e_cig <- Demo_dat %>%
+filter(gender=="Female") %>%
+inner_join(dat_e_cig_freq,by="person_id")
+table(dat_woman_e_cig$gender,dat_woman_e_cig$answer)
+
+## create dataframe to figure out the number of smoking participants (Has she/he ever smoked)
+dat_100_cig<- dat %>%
+filter(question=="Smoking: 100 Cigs Lifetime")
+table(dat_100_cig$answer)
+
+## create dataframe to figure out the number e-smoking participants (Has she/he ever e-smoked)
+dat_e_cig_ever <- dat %>%
+filter(question=="Electronic Smoking: Electric Smoke Participant")
+table(dat_e_cig_ever$answer)
+
+## create dataframe to figure out the number of female who are e-smoking participants (Has she ever e-smoked)
+dat_woman_e_cig_ever <- Demo_dat %>%
+filter(gender=="Female") %>%
+inner_join(dat_e_cig_ever,by="person_id")
+table(dat_woman_e_cig_ever$gender,dat_woman_e_cig_ever$answer)
+
+## create table to figure out the number of female who were never users of either cig and e-cig
+dat_woman_ever_cig_ecig<- dat_woman_100_cig %>%
+inner_join(dat_woman_e_cig_ever,by="person_id")
+table(dat_woman_ever_cig_ecig$answer.x,dat_woman_ever_cig_ecig$answer.y)
+
+## Create age variable and calculate mean and sd of age
+today <- "2022-10-10"
+today <- rep(today,length(Demo_dat$date_of_birth))
+tod <- as.Date(today,format="%Y-%m-%d")
+Demo_dat$date_of_birth <- as.Date(Demo_dat$date_of_birth,format="%Y-%m-%d")
+Demo_dat$age <- round((tod - Demo_dat$date_of_birth)/365)
+Demo_dat$age<-gsub("days","",Demo_dat$age)
+Demo_dat$age<-as.numeric(Demo_dat$age)
+dat_woman <- Demo_dat %>%
+filter(gender=="Female")
+
+mean(dat_woman$age)
+sd(dat_woman$age)
+
+## create table to figure out the number of ever e cig users who were current cc smoking
+dat_ecig_currentcig <- dat_e_cig_ever %>% 
+inner_join(dat_cig_freq,by="person_id")
+table(dat_ecig_currentcig$answer.x,dat_ecig_currentcig$answer.y)
+
+## create table to figure out the number of people were former smokers
+dat_quit <- dat %>%
+filter(question=="Attempt Quit Smoking: Completely Quit Age")
+dat_quit <-dat_quit %>%
+filter(answer!="PMI: Dont Know"&answer!="PMI: Prefer Not To Answer"&answer!="PMI: Skip")
+
+## create table to figure out the number of ever e cig users who were former smokers
+dat_e_cig_ever_yes <-dat_e_cig_ever %>% 
+filter(answer=="Electric Smoke Participant: Yes")
+dat_e_cig_former_smoke <-dat_e_cig_ever_yes %>%
+inner_join(dat_quit,by="person_id")
+dim(dat_e_cig_former_smoke)
+
+## create table to figure out the number of ever e cig users who were never smokers
+dat_e_cig_never_smoke <- dat_e_cig_ever %>%
+inner_join(dat_100_cig,by="person_id")
+table(dat_e_cig_never_smoke$answer.x,dat_e_cig_never_smoke$answer.y)
+
+## create data to figure out the number of current dual users
+dat_current_cc <- dat_cig_freq %>%
+filter(answer=="Smoke Frequency: Every Day" | answer=="Smoke Frequency: Some Days")
+dat_current_e_cig <- dat_e_cig_freq %>%
+filter(answer=="Electric Smoke Frequency: Every Day" | answer=="Electric Smoke Frequency: Some Days")
+dat_current_dual_user <- dat_current_cc %>%
+inner_join(dat_current_e_cig, by="person_id")
+dim(dat_current_dual_user)
+
+## create table to figure out the number of dual users who attempted quiting smoking
+dat_quit_attempt <- dat %>%
+filter(question=="Smoking: Serious Quit Attempt")
+dat_dual_quit_att <- dat_current_dual_user %>%
+inner_join(dat_quit_attempt,by="person_id")
+table(dat_dual_quit_att$answer.x,dat_dual_quit_att$answer)
+
+## create table to figure out the number of former smokers who currently vape
+dat_former_smoker_current_vape <- dat_quit %>%
+inner_join(dat_current_e_cig, by="person_id")
+dim(dat_former_smoker_current_vape)
+
+## create table to figure out the number of attemptting quit CC smoking among former smokers who currently vape
+dat_former_smoker_current_vape_attempt_quit <- dat_former_smoker_current_vape %>%
+inner_join(dat_quit_attempt,by="person_id")
+table(dat_former_smoker_current_vape_attempt_quit$answer.y,dat_former_smoker_current_vape_attempt_quit$answer)
+
+## Number of people who were never users and vaped
+dat_never_cc_ever_ecig <- dat_100_cig %>%
+filter(answer=="100 Cigs Lifetime: No") %>%
+inner_join(dat_e_cig_ever_yes,by="person_id") 
+dim(dat_never_cc_ever_ecig)
+
+age <- data.frame(age=Demo_dat$age,person_id=Demo_dat$person_id)
+
+## plot of age of people who were never users and vaped
+dat_never_cc_ever_ecig_age <- dat_never_cc_ever_ecig %>%
+inner_join(age,by="person_id")
+hist(dat_never_cc_ever_ecig_age$age)
+mean(dat_never_cc_ever_ecig_age$age)
+sd(dat_never_cc_ever_ecig_age$age)
+head(age)
+
+------------------------------------------------------
+## Number of people who were never users and vaped (18-24)
+dat_never_cc_ever_ecig_age_18_24 <- dat_never_cc_ever_ecig_age%>%
+filter(age>=18&age<=24)
+dim(dat_never_cc_ever_ecig_age_18_24)
+
+## Number of people who were ever users and vaped
+dat_ever_cc_ever_ecig <- dat_100_cig %>%
+filter(answer=="100 Cigs Lifetime: Yes") %>%
+inner_join(dat_e_cig_ever_yes,by="person_id") 
+
+## plot of age of people who were ever users and vaped
+dat_ever_cc_ever_ecig_age <- dat_ever_cc_ever_ecig %>%
+inner_join(age,by="person_id")
+hist(dat_ever_cc_ever_ecig_age$age)
+mean(dat_ever_cc_ever_ecig_age$age)
+sd(dat_ever_cc_ever_ecig_age$age)
+
+unique(Demo_dat$race)
+unique(Demo_dat$ethnicity)
+
+---------------------------------------------------------
+# Number of male who vaped
+dat_e_cig_ever_man <- Demo_dat%>%
+filter(gender=="Male")%>%
+inner_join(dat_e_cig_ever,by="person_id")
+table(dat_e_cig_ever_man$gender,dat_e_cig_ever_man$answer)
+dim(dat_e_cig_ever_man)
+
+# Number of multirace who vaped
+dat_muiltirace_vape <- Demo_dat %>%
+filter(race=="More than one population") %>%
+inner_join(dat_e_cig_ever,by="person_id")
+table(dat_muiltirace_vape$race,dat_muiltirace_vape$answer)
+
+
+
+
